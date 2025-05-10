@@ -1,7 +1,7 @@
 {
-	"id": "breadcrumbs",
-	"name": "Breadcrumbs",
-	"version": "3.6.11",
+	"id": "breadcrumbs-custom",
+	"name": "Breadcrumbs Custom",
+	"version": "4.2.35.x",
 	"minAppVersion": "1.0.0",
 	"description": "Add structured hierarchies to your notes",
 	"author": "SkepticMystic",
