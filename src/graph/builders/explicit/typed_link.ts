@@ -6,7 +6,7 @@ import { ensure_is_array } from "src/utils/arrays";
 import { resolve_relative_target_path } from "src/utils/obsidian";
 
 const MARKDOWN_LINK_REGEX = /\[(.+?)\]\((.+?)\)/;
-
+const WIKILINK_REGEX = /\[\[([^\[\]|]+?)(\|[^\[\]|]*)?\]\]/;
 export const _add_explicit_edges_typed_link: ExplicitEdgeBuilder = (
 	graph,
 	plugin,
@@ -58,9 +58,13 @@ export const _add_explicit_edges_typed_link: ExplicitEdgeBuilder = (
 		Object.keys(page).forEach((field) => {
 			// NOTE: Implies that an edge-field can't be in this list,
 			//   But Dataview probably enforces that anyway
+			var fieldname = field;
+			if (fieldname == "") {
+				fieldname = "~";
+			}
 			if (
-				!field_labels.has(field) ||
-				["file", "aliases"].includes(field)
+				!field_labels.has(fieldname) ||
+				["file", "aliases"].includes(fieldname)
 			) {
 				return;
 			}
@@ -70,13 +74,17 @@ export const _add_explicit_edges_typed_link: ExplicitEdgeBuilder = (
 				.flat()
 				.forEach((target_link) => {
 					let unsafe_target_path: string | undefined;
-
 					// Quickly return for null or ''
 					if (!target_link) return;
 					else if (typeof target_link === "string") {
-						// Try parse as a markdown link [](), grabbing the path out of the 2nd match
-						unsafe_target_path =
+						const wikiMatch = target_link.match(WIKILINK_REGEX);
+						if (wikiMatch) {
+							unsafe_target_path = wikiMatch[1].trim();
+						} else {
+							// Try parse as a markdown link [](), grabbing the path out of the 2nd match
+							unsafe_target_path =
 							target_link.match(MARKDOWN_LINK_REGEX)?.[2];
+						}
 					} else if (
 						typeof target_link === "object" &&
 						target_link?.path
@@ -89,14 +97,15 @@ export const _add_explicit_edges_typed_link: ExplicitEdgeBuilder = (
 						errors.push({
 							path: source_file.path,
 							code: "invalid_field_value",
-							message: `Invalid value for field '${field}': '${target_link}'. Dataview DateTime values are not supported, since they don't preserve the original date string.`,
+							message: `Invalid value for field '${fieldname}': '${target_link}'. Dataview DateTime values are not supported, since they don't preserve the original date string.`,
 						});
 					} else {
+						console.log({target_link});
 						// It's a BC field, with a definitely invalid value, cause it's not a link
 						errors.push({
 							path: source_file.path,
 							code: "invalid_field_value",
-							message: `Invalid value for field '${field}': '${target_link}'. Expected wikilink or markdown link.`,
+							message: `Invalid value for field '${fieldname}': '${target_link}'. Expected wikilink or markdown link.`,
 						});
 					}
 
@@ -120,7 +129,7 @@ export const _add_explicit_edges_typed_link: ExplicitEdgeBuilder = (
 						source_file.path,
 						target_path,
 						{
-							field,
+							field: fieldname,
 							explicit: true,
 							source: "typed_link",
 						},
