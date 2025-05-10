@@ -1,3 +1,14 @@
+# siralmat/obsidian-breadcrumbs
+This is a personal fork of the [SkepticMystic/breadcrumbs](https://github.com/SkepticMystic/breadcrumbs) Obsidian plugin with minor experimental tweaks to fit my own workflow:
+- Parse wikilinks from mixed fields
+  - Example: `contact:: Mr. [[John F Doe|John Doe]] (business hours only)` will now be read by Breadcrumbs as `contact:: [[John F Doe]]`. 
+  - Only the first link is parsed; subsequent links are ignored.
+- Unnamed fields reported by Dataview are renamed and tracked in Breadcrumbs with the label `~`
+  - _Why??_ Dataview *technically* allows you to use silly property names like `!` and `?`. You can't reference them in DV queries (I think) but the contents are still tracked under an empty property name. You probably shouldn't do this! But if you *do*, you can now see those connections in Breadcrumbs. 
+- Hard-coded icon size dropped to 16px
+
+
+# Original README
 > [!IMPORTANT]
 > Breadcrumbs has recently been rewritten from scratch, and is available in the V4 beta (downloadable via the Obsidian BRAT plugin). See here for more info on the changes: https://github.com/SkepticMystic/breadcrumbs/blob/master/V4.md
 
